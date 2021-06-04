@@ -76,9 +76,9 @@ func (r *pReceiver) Start(_ context.Context, host component.Host) error {
 	if !r.cfg.UseStartTimeMetric {
 		jobsMap = internal.NewJobsMap(2 * time.Minute)
 	}
-	// Per component.Component Start instructions, for async operations we should not use the
-	// incoming context, it may get cancelled.
-	receiverCtx := obsreport.ReceiverContext(context.Background(), r.cfg.ID(), transport)
+	// Ensure that when the receiver is Shutdown all ongoing and scheduled transactions are as well
+	// by using discoveryCtx
+	receiverCtx := obsreport.ReceiverContext(discoveryCtx, r.cfg.ID(), transport)
 	ocaStore := internal.NewOcaStore(
 		receiverCtx,
 		r.consumer,
